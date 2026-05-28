@@ -1,21 +1,26 @@
 export function getBackendBaseUrl() {
-  return process.env.BACKEND_URL || "http://localhost:4000";
+  return process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 }
 
 export async function proxyToBackend(request: Request, pathname: string) {
-  const targetUrl = new URL(pathname, getBackendBaseUrl());
-  const headers = new Headers(request.headers);
-  headers.delete("host");
-  headers.delete("content-length");
+  try {
+    const targetUrl = new URL(pathname, getBackendBaseUrl());
+    const headers = new Headers(request.headers);
+    headers.delete("host");
+    headers.delete("content-length");
 
-  const hasBody = request.method !== "GET" && request.method !== "HEAD";
-  const body = hasBody ? Buffer.from(await request.arrayBuffer()) : undefined;
+    const hasBody = request.method !== "GET" && request.method !== "HEAD";
+    const body = hasBody ? Buffer.from(await request.arrayBuffer()) : undefined;
 
-  return fetch(targetUrl, {
-    method: request.method,
-    headers,
-    body
-  });
+    return await fetch(targetUrl, {
+      method: request.method,
+      headers,
+      body
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to reach backend";
+    return Response.json({ error: message }, { status: 502 });
+  }
 }
 
 export async function readBackendResponse(response: Response) {

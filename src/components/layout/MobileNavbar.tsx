@@ -7,10 +7,7 @@ import { VedaLogo } from "@/components/common/VedaLogo";
 import { useUiStore } from "@/store/uiStore";
 
 function MobileSystemBar() {
-  const [timeLabel, setTimeLabel] = useState(() => new Date().toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit"
-  }));
+  const [timeLabel, setTimeLabel] = useState("--:--");
 
   useEffect(() => {
     const updateTime = () => {
@@ -31,7 +28,9 @@ function MobileSystemBar() {
   return (
     <section className="grid h-[105px] bg-chrome-dark px-2 pb-3 pt-4 text-text-inverse" aria-label="Mobile browser chrome">
       <div className="flex items-center justify-between px-6 text-sm font-semibold">
-        <span aria-label={`Current time ${timeLabel}`}>{timeLabel}</span>
+        <span aria-label={`Current time ${timeLabel}`} suppressHydrationWarning>
+          {timeLabel}
+        </span>
         <span aria-hidden="true" className="text-xs">|||</span>
       </div>
       <div className="mt-3 flex h-10 items-center gap-2 rounded-pill bg-chrome-bar px-4 text-sm">
