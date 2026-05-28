@@ -1,4 +1,4 @@
-import { generatedPaperSchema } from "./validators.ts";
+import { generatedPaperSchema } from "./validators";
 import { GoogleGenAI } from "@google/genai";
 import type { GeneratedPaper } from "@/types/assignment";
 

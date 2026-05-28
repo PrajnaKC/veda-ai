@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
-import { connectToDatabase } from "../lib/mongodb.ts";
-import { deleteCache } from "../lib/redis.ts";
-import { emitGenerationEvent } from "../lib/realtime.ts";
-import { generateStructuredPaper } from "../lib/gemini.ts";
-import { AssignmentModel } from "../models/Assignment.ts";
-import { buildGenerationPrompt } from "./promptBuilder.ts";
-import type { Assignment, GeneratedPaper } from "../types/assignment.ts";
+import { connectToDatabase } from "../lib/mongodb";
+import { deleteCache } from "../lib/redis";
+import { emitGenerationEvent } from "../lib/realtime";
+import { generateStructuredPaper } from "../lib/gemini";
+import { AssignmentModel } from "../models/Assignment";
+import { buildGenerationPrompt } from "./promptBuilder";
+import type { Assignment, GeneratedPaper } from "../types/assignment";
 
 function serializeAssignment(doc: unknown): Assignment {
   return JSON.parse(JSON.stringify(doc)) as Assignment;

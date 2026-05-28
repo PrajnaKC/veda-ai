@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { connectToDatabase } from "../../../src/lib/mongodb.ts";
-import { AssignmentModel } from "../models/Assignment.ts";
-import { findGeneratedPaper } from "../repositories/generatedPaper.repository.ts";
+import { connectToDatabase } from "../../../src/lib/mongodb";
+import { AssignmentModel } from "../models/Assignment";
+import { findGeneratedPaper } from "../repositories/generatedPaper.repository";
 
 function serialize(doc: unknown) {
   return JSON.parse(JSON.stringify(doc));

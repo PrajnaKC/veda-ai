@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from "socket.io";
 import type { Server as HttpServer } from "node:http";
-import { setRealtimeServer } from "../../../src/lib/realtime.ts";
+import { setRealtimeServer } from "../../../src/lib/realtime";
 
 export function createSocketServer(httpServer: HttpServer) {
   const socketUrl = process.env.CLIENT_URL || "http://localhost:3000";

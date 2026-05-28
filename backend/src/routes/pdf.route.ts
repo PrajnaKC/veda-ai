@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { connectToDatabase } from "../../../src/lib/mongodb.ts";
-import { AssignmentModel } from "../models/Assignment.ts";
-import { createAssignmentPdf } from "../../../src/services/pdfService.ts";
-import { pdfQueue } from "../queues/pdf.queue.ts";
-import { GeneratedPaperModel } from "../models/GeneratedPaper.ts";
+import { connectToDatabase } from "../../../src/lib/mongodb";
+import { AssignmentModel } from "../models/Assignment";
+import { createAssignmentPdf } from "../../../src/services/pdfService";
+import { pdfQueue } from "../queues/pdf.queue";
+import { GeneratedPaperModel } from "../models/GeneratedPaper";
 
 export const pdfRouter = Router();
 

@@ -1,8 +1,8 @@
 import { Worker } from "bullmq";
-import { getRedisConnection } from "../config/redis.ts";
-import { connectToDatabase } from "../../../src/lib/mongodb.ts";
-import { createAssignmentPdf } from "../../../src/services/pdfService.ts";
-import { AssignmentModel } from "../../../src/models/Assignment.ts";
+import { getRedisConnection } from "../config/redis";
+import { connectToDatabase } from "../../../src/lib/mongodb";
+import { createAssignmentPdf } from "../../../src/services/pdfService";
+import { AssignmentModel } from "../../../src/models/Assignment";
 
 export function startPdfWorker() {
   const worker = new Worker(

@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
-import { getRedisConnection } from "../config/redis.ts";
-import { runGenerationJob } from "../../../src/services/generationService.ts";
+import { getRedisConnection } from "../config/redis";
+import { runGenerationJob } from "../../../src/services/generationService";
 
 export function startGenerationWorker() {
   const worker = new Worker(

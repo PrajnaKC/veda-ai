@@ -1,4 +1,4 @@
-import { GeneratedPaperModel } from "../models/GeneratedPaper.ts";
+import { GeneratedPaperModel } from "../models/GeneratedPaper";
 
 export async function upsertGeneratedPaper(assignmentId: string, payload: Record<string, unknown>) {
   return GeneratedPaperModel.findOneAndUpdate({ assignmentId }, { ...payload, assignmentId }, { upsert: true, new: true });

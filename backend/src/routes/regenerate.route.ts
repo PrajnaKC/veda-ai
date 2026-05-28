@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { queueGeneration } from "../../../src/services/generationService.ts";
-import { generationQueue } from "../queues/generation.queue.ts";
+import { queueGeneration } from "../../../src/services/generationService";
+import { generationQueue } from "../queues/generation.queue";
 
 export const regenerateRouter = Router();
 
