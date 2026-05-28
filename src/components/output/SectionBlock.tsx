@@ -7,6 +7,8 @@ type QuestionItem = {
   text: string;
   difficulty: DifficultyType;
   marks: number;
+  type?: string;
+  options?: string[];
 };
 
 type SectionBlockProps = {
@@ -50,6 +52,8 @@ export function SectionBlock({
             text={q.text}
             difficulty={q.difficulty}
             marks={q.marks}
+            type={q.type}
+            options={q.options}
           />
         ))}
       </div>

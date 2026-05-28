@@ -4,7 +4,6 @@ import { connectToDatabase } from "../../../src/lib/mongodb";
 import { deleteCache, getCache, setCache } from "../../../src/lib/redis";
 import { assignmentCreateSchema } from "../../../src/lib/validators";
 import { AssignmentModel } from "../models/Assignment";
-import { createUpload } from "../repositories/upload.repository";
 import { extractUploadedFile } from "../utils/upload";
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -29,11 +28,6 @@ async function parseRequest(req: import("express").Request) {
   if (file) {
     const uploadedFile = await extractUploadedFile(file);
     payload.uploadedFile = uploadedFile;
-    await createUpload({
-      assignmentId: payload.assignmentId || payload.title,
-      fileUrl: "",
-      ...uploadedFile
-    });
   }
 
   return payload;

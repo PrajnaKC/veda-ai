@@ -24,8 +24,16 @@ const generatedPaperSchema = new Schema(
           {
             questionNumber: { type: Number, required: true },
             question: { type: String, required: true },
+            // type discriminator for question formats
+            type: { type: String, enum: ["mcq", "oneword", "short", "long", "numerical", "diagram", "case"], required: false },
+            // For MCQ questions
+            options: [{ type: String }],
+            // Flexible meta field for type-specific data (diagram hints, units, sub-questions, case text etc.)
+            meta: { type: Schema.Types.Mixed },
             difficulty: { type: String, enum: ["Easy", "Moderate", "Hard"], required: true },
-            marks: { type: Number, required: true }
+            marks: { type: Number, required: true },
+            // optional canonical answer for short/oneword/mcq/numerical
+            answer: { type: String }
           }
         ]
       }

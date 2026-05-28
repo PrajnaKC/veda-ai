@@ -16,7 +16,11 @@ export const uploadedFileSchema = z.object({
 export const generatedQuestionSchema = z.object({
   text: z.string().trim().min(1),
   difficulty: z.enum(["easy", "medium", "hard"]),
-  marks: z.number().int().positive()
+  marks: z.number().int().positive(),
+  type: z.enum(["mcq", "oneword", "short", "long", "numerical", "diagram", "case"]).optional(),
+  options: z.array(z.string()).optional(),
+  answer: z.string().optional(),
+  meta: z.record(z.any()).optional()
 });
 
 export const generatedPaperSchema = z.object({

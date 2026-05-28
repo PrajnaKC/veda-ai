@@ -8,9 +8,95 @@ import { QuestionPaper } from "./QuestionPaper";
 import { ResponseBanner } from "@/components/ResponseBanner";
 import type { QuestionPaperData } from "@/data/questionPaper";
 
-export function OutputPaper({ assignment }: { assignment: Assignment }) {
+type BackendGeneratedPaperQuestion = {
+  questionNumber?: number;
+  question?: string;
+  text?: string;
+  difficulty?: string;
+  marks?: number;
+};
+
+type BackendGeneratedPaperSection = {
+  title?: string;
+  instruction?: string;
+  questions?: BackendGeneratedPaperQuestion[];
+};
+
+type BackendGeneratedPaper = {
+  sections?: BackendGeneratedPaperSection[];
+};
+
+type OutputPaperProps = {
+  assignment: Assignment;
+  generatedPaper?: BackendGeneratedPaper | null;
+};
+
+function normalizeDifficulty(difficulty?: string) {
+  const normalized = difficulty?.trim().toLowerCase();
+
+  if (normalized === "hard") {
+    return "Challenging";
+  }
+
+  if (normalized === "medium" || normalized === "moderate") {
+    return "Moderate";
+  }
+
+  return "Easy";
+}
+
+function resolvePaperSections(paper?: Assignment["generatedPaper"] | BackendGeneratedPaper | null) {
+  return (paper?.sections || []).map((sec, idx) => ({
+    id: `section-${idx}`,
+    title: sec.title || `Section ${idx + 1}`,
+    subtitle: sec.title?.toLowerCase().includes("section") ? "Questions" : sec.title || "Questions",
+    helperText: sec.instruction || "All questions are compulsory.",
+    questions: (() => {
+      const out: any[] = [];
+      (sec.questions || []).forEach((q, qidx) => {
+        const qType = (q as any).type as string | undefined;
+        const base = {
+          id: q.questionNumber || out.length + 1,
+          difficulty: normalizeDifficulty(q.difficulty),
+          text: q.text || q.question || "",
+          marks: q.marks || 0,
+          answer: (q as any).answer || "",
+          type: qType,
+          options: Array.isArray((q as any).options) ? (q as any).options : undefined,
+          meta: (q as any).meta,
+        };
+
+        if (qType === "case" && (q as any).meta && Array.isArray((q as any).meta.subQuestions)) {
+          // push the case stem first (include case text if provided)
+          const caseStemText = [base.text, (q as any).meta.caseText].filter(Boolean).join("\n\n");
+          out.push({ ...base, text: caseStemText, marks: q.marks || 0 });
+
+          // then push each sub-question as individual numbered questions
+          (q as any).meta.subQuestions.forEach((sub: any) => {
+            out.push({
+              id: sub.questionNumber || out.length + 1,
+              difficulty: normalizeDifficulty(sub.difficulty || q.difficulty),
+              text: sub.text || sub.question || sub.prompt || "",
+              marks: sub.marks || 0,
+              answer: sub.answer || "",
+              type: sub.type || "short",
+              options: Array.isArray(sub.options) ? sub.options : undefined,
+              meta: sub.meta || undefined,
+            });
+          });
+        } else {
+          out.push(base);
+        }
+      });
+
+      return out;
+    })(),
+  }));
+}
+
+export function OutputPaper({ assignment, generatedPaper }: OutputPaperProps) {
   const { connect, disconnect, realtimeStatus } = useSocketStore();
-  const latestPaper = realtimeStatus?.generatedPaper || assignment.generatedPaper;
+  const latestPaper = realtimeStatus?.generatedPaper || generatedPaper || assignment.generatedPaper;
   const latestStatus = realtimeStatus?.status || assignment.status;
 
   useEffect(() => {
@@ -18,17 +104,14 @@ export function OutputPaper({ assignment }: { assignment: Assignment }) {
     return () => disconnect();
   }, [assignment._id, connect, disconnect]);
 
+  useEffect(() => {
+    // Debug logging to help diagnose missing paper rendering
+    // eslint-disable-next-line no-console
+    console.debug("OutputPaper debug:", { assignment, generatedPaper, realtimeStatus, latestPaper });
+  }, [assignment, generatedPaper, realtimeStatus, latestPaper]);
+
   // Construct the structured paper data from the database assignment schema
-  const mappedSections = (latestPaper?.sections || []).map((sec) => ({
-    title: sec.title || "Section",
-    subtitle: sec.title.toLowerCase().includes("section") ? "Questions" : sec.title,
-    instruction: sec.instruction || "All questions are compulsory.",
-    questions: (sec.questions || []).map((q) => ({
-      text: q.text,
-      difficulty: q.difficulty,
-      marks: q.marks,
-    })),
-  }));
+  const mappedSections = resolvePaperSections(latestPaper);
 
   const instructionsList = assignment.instructions
     ? assignment.instructions.split("\n").filter((i) => i.trim().length > 0)
@@ -42,19 +125,7 @@ export function OutputPaper({ assignment }: { assignment: Assignment }) {
     timeAllowed: assignment.duration,
     maximumMarks: assignment.totalMarks,
     responseMessage: realtimeStatus?.message || "Certainly! Here is your customized question paper.",
-    sections: (latestPaper?.sections || []).map((sec, idx) => ({
-      id: `section-${idx}`,
-      title: sec.title,
-      subtitle: sec.title.toLowerCase().includes("section") ? "Questions" : sec.title,
-      helperText: sec.instruction || "All questions are compulsory.",
-      questions: (sec.questions || []).map((q, qidx) => ({
-        id: qidx + 1,
-        difficulty: q.difficulty.toLowerCase().trim() === "hard" ? "Challenging" : q.difficulty.toLowerCase().trim() === "medium" ? "Moderate" : "Easy",
-        text: q.text,
-        marks: q.marks,
-        answer: "",
-      })),
-    })),
+    sections: mappedSections,
     questions: [],
     answerKey: [],
     fileName: `${(assignment.institutionName || "exam").replace(/[^a-z0-9]/gi, "_").toLowerCase()}_exam.pdf`,
@@ -119,6 +190,12 @@ export function OutputPaper({ assignment }: { assignment: Assignment }) {
             instructions={instructionsList}
             sections={mappedSections}
           />
+          {mappedSections.length === 0 && (
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="font-semibold text-yellow-800 mb-2">Developer debug: No sections found</p>
+              <pre className="text-xs max-h-52 overflow-auto text-neutral-800">{JSON.stringify({ assignment, latestPaper }, null, 2)}</pre>
+            </div>
+          )}
         </div>
       ) : (
         <div className="w-full max-w-[1060px] bg-white rounded-[24px] sm:rounded-[32px] p-12 text-center shadow-lg border border-neutral-200">

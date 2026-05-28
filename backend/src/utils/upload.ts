@@ -11,9 +11,11 @@ export async function extractUploadedFile(file: Express.Multer.File) {
   }
 
   return {
-    originalName: file.originalname,
-    mimeType: file.mimetype || "application/octet-stream",
+    name: file.originalname,
+    type: file.mimetype || "application/octet-stream",
     size: file.size,
-    extractedText
+    extractedText,
+    originalName: file.originalname,
+    mimeType: file.mimetype || "application/octet-stream"
   };
 }

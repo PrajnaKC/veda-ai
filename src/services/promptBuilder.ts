@@ -24,7 +24,11 @@ Generate only question content matching this exact schema:
         {
           "text": "",
           "difficulty": "easy|medium|hard",
-          "marks": 1
+          "marks": 1,
+          "type": "mcq|oneword|short|long|numerical|diagram|case",
+          "options": ["option1", "option2"], // include only when type is mcq
+          "answer": "", // optional canonical answer for one-word/short/mcq/numerical
+          "meta": { "diagramHint": "", "units": "", "caseText": "", "subQuestions": [] } // optional type-specific metadata
         }
       ]
     }

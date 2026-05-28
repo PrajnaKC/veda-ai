@@ -19,6 +19,10 @@ export type GeneratedQuestion = {
   text: string;
   difficulty: QuestionDifficulty;
   marks: number;
+  type?: "mcq" | "oneword" | "short" | "long" | "numerical" | "diagram" | "case";
+  options?: string[];
+  answer?: string;
+  meta?: Record<string, unknown>;
 };
 
 export type GeneratedSection = {
