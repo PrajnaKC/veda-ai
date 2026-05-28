@@ -7,6 +7,7 @@
     "dev:frontend": "next dev",
     "dev:clean": "powershell -NoProfile -Command \"if (Test-Path .next) { Remove-Item -LiteralPath .next -Recurse -Force }; npm run dev\"",
     "build": "next build",
+    "build:backend": "npx esbuild backend/src/server.ts --bundle --platform=node --target=node18 --outfile=backend/dist/server.js",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
@@ -55,5 +56,7 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"
+    ,
+    "esbuild": "^0.28.0"
   }
 }
