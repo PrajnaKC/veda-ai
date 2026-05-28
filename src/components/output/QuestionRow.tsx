@@ -54,7 +54,6 @@ export function QuestionRow({ index, text, difficulty, marks, type, options }: Q
           )}
 
           {/* Show canonical answer if present (developer view) */}
-          {typeof (options as any) === "undefined" && (options as any) === undefined}
         </div>
       </div>
       <div className="shrink-0 text-right font-semibold text-neutral-700 text-[14px] sm:text-[15px] whitespace-nowrap pt-[2px]">

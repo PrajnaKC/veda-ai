@@ -16,6 +16,30 @@ type BackendGeneratedPaperQuestion = {
   marks?: number;
 };
 
+type PaperQuestion = BackendGeneratedPaperQuestion & {
+  type?: "mcq" | "oneword" | "short" | "long" | "numerical" | "diagram" | "case";
+  options?: string[];
+  answer?: string;
+  meta?: Record<string, unknown>;
+  prompt?: string;
+};
+
+type ResolvedQuestion = {
+  id: number | string;
+  difficulty: string;
+  text: string;
+  marks: number;
+  answer?: string;
+  type?: string;
+  options?: string[];
+  meta?: Record<string, unknown>;
+};
+
+type CaseMeta = {
+  caseText?: string;
+  subQuestions?: PaperQuestion[];
+};
+
 type BackendGeneratedPaperSection = {
   title?: string;
   instruction?: string;
@@ -52,38 +76,44 @@ function resolvePaperSections(paper?: Assignment["generatedPaper"] | BackendGene
     subtitle: sec.title?.toLowerCase().includes("section") ? "Questions" : sec.title || "Questions",
     helperText: sec.instruction || "All questions are compulsory.",
     questions: (() => {
-      const out: any[] = [];
-      (sec.questions || []).forEach((q, qidx) => {
-        const qType = (q as any).type as string | undefined;
+      const out: ResolvedQuestion[] = [];
+      (sec.questions || []).forEach((q) => {
+        const qq = q as PaperQuestion;
+        const qType = qq.type as string | undefined;
         const base = {
-          id: (q as any).questionNumber || out.length + 1,
-          difficulty: normalizeDifficulty((q as any).difficulty),
-          text: (q as any).text || (q as any).question || "",
-          marks: (q as any).marks || 0,
-          answer: (q as any).answer || "",
+          id: qq.questionNumber || out.length + 1,
+          difficulty: normalizeDifficulty(qq.difficulty),
+          text: qq.text || qq.question || "",
+          marks: qq.marks || 0,
+          answer: qq.answer || "",
           type: qType,
-          options: Array.isArray((q as any).options) ? (q as any).options : undefined,
-          meta: (q as any).meta,
+          options: Array.isArray(qq.options) ? qq.options : undefined,
+          meta: qq.meta as Record<string, unknown> | undefined,
         };
 
-        if (qType === "case" && (q as any).meta && Array.isArray((q as any).meta.subQuestions)) {
-          // push the case stem first (include case text if provided)
-          const caseStemText = [base.text, (q as any).meta.caseText].filter(Boolean).join("\n\n");
-          out.push({ ...base, text: caseStemText, marks: q.marks || 0 });
+        if (qType === "case") {
+          const caseMeta = qq.meta as CaseMeta | undefined;
+          if (caseMeta && Array.isArray(caseMeta.subQuestions)) {
+            // push the case stem first (include case text if provided)
+            const caseStemText = [base.text, caseMeta.caseText].filter(Boolean).join("\n\n");
+            out.push({ ...base, text: caseStemText, marks: qq.marks || 0 });
 
-          // then push each sub-question as individual numbered questions
-          (q as any).meta.subQuestions.forEach((sub: any) => {
-            out.push({
-              id: sub.questionNumber || out.length + 1,
-              difficulty: normalizeDifficulty(sub.difficulty || q.difficulty),
-              text: sub.text || sub.question || sub.prompt || "",
-              marks: sub.marks || 0,
-              answer: sub.answer || "",
-              type: sub.type || "short",
-              options: Array.isArray(sub.options) ? sub.options : undefined,
-              meta: sub.meta || undefined,
+            // then push each sub-question as individual numbered questions
+            caseMeta.subQuestions.forEach((sub) => {
+              out.push({
+                id: sub.questionNumber || out.length + 1,
+                difficulty: normalizeDifficulty(sub.difficulty || qq.difficulty),
+                text: sub.text || sub.question || sub.prompt || "",
+                marks: sub.marks || 0,
+                answer: sub.answer || "",
+                type: sub.type || "short",
+                options: Array.isArray(sub.options) ? sub.options : undefined,
+                meta: sub.meta || undefined,
+              });
             });
-          });
+          } else {
+            out.push(base);
+          }
         } else {
           out.push(base);
         }

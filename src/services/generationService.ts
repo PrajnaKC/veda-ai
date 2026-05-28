@@ -61,54 +61,74 @@ export async function runGenerationJob(assignmentId: string): Promise<GeneratedP
     const generatedPaper = await generateStructuredPaper(prompt);
 
     // Normalize generated paper: ensure MCQs have exactly 4 options and safe defaults
-    function normalizePaper(p: any): any {
-      if (!p || !Array.isArray(p.sections)) return p;
-      const letters = ["A","B","C","D"];
-      p.sections = p.sections.map((sec: any, sidx: number) => {
-        sec.title = sec.title || `Section ${sidx + 1}`;
-        sec.instruction = sec.instruction || "";
-        sec.questions = (sec.questions || []).map((q: any, qidx: number) => {
-          q.text = q.text || q.question || q.prompt || `Question ${qidx + 1}`;
-          q.type = q.type || "short";
-          q.marks = q.marks || 1;
-          q.difficulty = (q.difficulty || "easy").toLowerCase();
+    function normalizePaper(p: unknown): GeneratedPaper | unknown {
+      if (!p || typeof p !== "object") return p;
+      const paper = p as GeneratedPaper;
+      if (!Array.isArray(paper.sections)) return p;
 
-          if (q.type === "mcq") {
-            let opts = Array.isArray(q.options) ? q.options.map(String).filter(Boolean) : [];
-            // ensure unique
+      const letters = ["A","B","C","D"];
+      paper.sections = paper.sections.map((sec, sidx) => {
+        const title = sec.title || `Section ${sidx + 1}`;
+        const instruction = sec.instruction || "";
+        const questions = (sec.questions || []).map((q, qidx) => {
+          const qRaw = q as unknown as {
+            question?: string;
+            prompt?: string;
+            text?: string;
+            type?: string;
+            marks?: number;
+            difficulty?: string;
+            options?: unknown[];
+            answer?: string | number;
+            meta?: Record<string, unknown>;
+          };
+
+          const text = qRaw.text || qRaw.question || qRaw.prompt || `Question ${qidx + 1}`;
+          const type = (qRaw.type || "short") as GeneratedPaper["sections"][number]["questions"][number]["type"] | undefined;
+          const marks = qRaw.marks || 1;
+          const difficulty = ((qRaw.difficulty || "easy").toLowerCase() as "easy" | "medium" | "hard");
+
+          const outQ: GeneratedPaper["sections"][number]["questions"][number] = {
+            text,
+            difficulty,
+            marks,
+            type,
+          } as GeneratedPaper["sections"][number]["questions"][number];
+
+          if (type === "mcq") {
+            let opts = Array.isArray(qRaw.options) ? qRaw.options.map(String).filter(Boolean) : [];
             opts = Array.from(new Set(opts));
-            // pad or trim to 4
             for (let i = opts.length; i < 4; i++) opts.push(`Option ${letters[i] || i + 1}`);
             if (opts.length > 4) opts = opts.slice(0, 4);
-            q.options = opts;
-            // normalize answer
-            if (!q.answer || !opts.includes(String(q.answer))) {
-              // if numeric index provided, convert
-              if (typeof q.answer === "number" && q.answer >= 0 && q.answer < opts.length) q.answer = opts[q.answer];
-              else q.answer = opts[0];
-            }
-          } else {
-            // remove options for non-mcq
-            if (q.options) delete q.options;
+            outQ.options = opts;
+            if (typeof qRaw.answer === "string" && opts.includes(qRaw.answer)) outQ.answer = qRaw.answer;
+            else if (typeof qRaw.answer === "number" && qRaw.answer >= 0 && qRaw.answer < opts.length) outQ.answer = opts[qRaw.answer];
+            else outQ.answer = opts[0];
           }
 
-          return q;
+          if (qRaw.meta) outQ.meta = qRaw.meta;
+
+          return outQ;
         });
 
-        return sec;
+        return {
+          title,
+          instruction,
+          questions,
+        } as GeneratedPaper["sections"][number];
       });
 
-      return p;
+      return paper;
     }
 
     const normalized = normalizePaper(generatedPaper);
 
     // Validate best-effort against schema; if fails, still persist normalized version
-    const validation = generatedPaperSchema.safeParse(normalized);
+    generatedPaperSchema.safeParse(normalized as GeneratedPaper);
 
     await AssignmentModel.findByIdAndUpdate(assignmentId, {
       status: "completed",
-      generatedPaper: normalized
+      generatedPaper: normalized as GeneratedPaper
     });
 
     await deleteCache("assignments:list", `assignments:${assignmentId}`);
