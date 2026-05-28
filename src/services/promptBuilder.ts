@@ -6,7 +6,7 @@ export function buildGenerationPrompt(assignment: Assignment) {
     .join("\n");
 
   const materialContext = assignment.uploadedFile?.extractedText
-    ? `\nStudy material context:\n${assignment.uploadedFile.extractedText.slice(0, 18000)}`
+    ? `\nStudy material context (PRIMARY REFERENCE):\n${assignment.uploadedFile.extractedText.slice(0, 18000)}`
     : "\nNo uploaded study material was provided.";
 
   return `
@@ -56,5 +56,10 @@ Rules:
 - Each section question count and marks must match the plan.
 - Use difficulty values exactly as easy, medium, or hard.
 - Keep questions clear, assessment-ready, and appropriate for the subject.
+- If study material is provided, base the generated questions on that material first.
+- Prefer the uploaded document's concepts, terminology, examples, and structure over external assumptions.
+- Do not generate unrelated topics when the uploaded document covers the requested question types.
+ - For MCQs: include exactly 4 distinct options for each MCQ and mark the canonical answer using the "answer" field. Do not output more or fewer than 4 options.
+${!assignment.uploadedFile ? "- No uploaded study material detected: base questions strictly on the assignment form fields (title, subject, instructions, question plan). Do NOT invent facts, citations, or assume any external content." : ""}
 `.trim();
 }

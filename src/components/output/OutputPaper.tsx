@@ -56,10 +56,10 @@ function resolvePaperSections(paper?: Assignment["generatedPaper"] | BackendGene
       (sec.questions || []).forEach((q, qidx) => {
         const qType = (q as any).type as string | undefined;
         const base = {
-          id: q.questionNumber || out.length + 1,
-          difficulty: normalizeDifficulty(q.difficulty),
-          text: q.text || q.question || "",
-          marks: q.marks || 0,
+          id: (q as any).questionNumber || out.length + 1,
+          difficulty: normalizeDifficulty((q as any).difficulty),
+          text: (q as any).text || (q as any).question || "",
+          marks: (q as any).marks || 0,
           answer: (q as any).answer || "",
           type: qType,
           options: Array.isArray((q as any).options) ? (q as any).options : undefined,

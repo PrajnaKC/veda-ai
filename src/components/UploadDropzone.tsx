@@ -58,6 +58,7 @@ export default function UploadDropzone() {
           <div className="font-semibold text-neutral-800 text-lg mb-1">Choose a file or drag & drop it here</div>
           <div className="text-sm text-neutral-500 mb-3">JPEG, PNG, upto 10MB</div>
           <button
+            type="button"
             className="px-5 py-2 rounded-full bg-neutral-900 text-white font-medium shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
             tabIndex={0}
             aria-label="Browse files"
