@@ -17,3 +17,26 @@ export async function proxyToBackend(request: Request, pathname: string) {
     body
   });
 }
+
+export async function readBackendResponse(response: Response) {
+  const contentType = response.headers.get("content-type") || "";
+  const text = await response.text();
+
+  if (!text) {
+    return null;
+  }
+
+  if (contentType.includes("application/json")) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { error: text };
+    }
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: text };
+  }
+}
