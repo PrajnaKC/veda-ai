@@ -22,7 +22,7 @@ function start(command, args, label) {
 }
 
 const nextDev = start("npm", ["run", "dev:frontend"], "frontend");
-const backendDev = start("node", ["--experimental-strip-types", "backend/src/server.ts"], "backend");
+const backendDev = start("node", ["--experimental-strip-types", "--experimental-default-type=module", "backend/src/server.ts"], "backend");
 
 function shutdown() {
   nextDev.kill();

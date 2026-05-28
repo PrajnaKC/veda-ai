@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import type { Assignment } from "@/types/assignment";
+import type { Assignment } from "../types/assignment.ts";
 
 export function createAssignmentPdf(assignment: Assignment) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });

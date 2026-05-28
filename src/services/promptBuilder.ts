@@ -1,4 +1,4 @@
-import type { Assignment } from "@/types/assignment";
+import type { Assignment } from "../types/assignment.ts";
 
 export function buildGenerationPrompt(assignment: Assignment) {
   const questionPlan = assignment.questionTypes

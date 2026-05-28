@@ -1,5 +1,5 @@
 import type { Server as SocketIOServer } from "socket.io";
-import type { GenerationEventName, GenerationEventPayload } from "@/types/socket";
+import type { GenerationEventName, GenerationEventPayload } from "../types/socket.ts";
 
 type RealtimeServer = SocketIOServer | null;
 

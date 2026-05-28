@@ -1,6 +1,6 @@
-import { generatedPaperSchema } from "./validators";
+import { generatedPaperSchema } from "./validators.ts";
 import { GoogleGenAI } from "@google/genai";
-import type { GeneratedPaper } from "@/types/assignment";
+import type { GeneratedPaper } from "../types/assignment.ts";
 
 const GEMINI_MODELS = (process.env.GEMINI_MODEL || "gemini-2.5-flash,gemini-2.0-flash")
   .split(",")

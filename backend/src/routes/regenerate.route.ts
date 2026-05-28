@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { queueGeneration } from "../../../src/services/generationService";
-import { generationQueue } from "../queues/generation.queue";
+import { queueGeneration, runGenerationJob } from "../../../src/services/generationService.ts";
+import { generationQueue } from "../queues/generation.queue.ts";
 
 export const regenerateRouter = Router();
 
@@ -8,13 +8,17 @@ regenerateRouter.post("/:assignmentId", async (req, res) => {
   try {
     const { assignmentId } = req.params;
     const queued = await queueGeneration(assignmentId);
-    const job = await generationQueue.add("generation", { assignmentId });
+    const job = generationQueue ? await generationQueue.add("generation", { assignmentId }) : null;
+
+    if (!generationQueue) {
+      await runGenerationJob(assignmentId);
+    }
 
     return res.json({
       data: {
         assignmentId,
-        jobId: job.id,
-        status: queued.assignment.status
+        jobId: job?.id ?? null,
+        status: generationQueue ? queued.assignment.status : "completed"
       }
     });
   } catch (error) {

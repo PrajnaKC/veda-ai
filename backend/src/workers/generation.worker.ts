@@ -1,8 +1,14 @@
 import { Worker } from "bullmq";
-import { getRedisConnection } from "../config/redis";
-import { runGenerationJob } from "../../../src/services/generationService";
+import { getRedisConnection } from "../config/redis.ts";
+import { runGenerationJob } from "../../../src/services/generationService.ts";
 
 export function startGenerationWorker() {
+  const connection = getRedisConnection();
+  if (!connection) {
+    console.warn("Generation worker disabled: REDIS_URL is not configured");
+    return null;
+  }
+
   const worker = new Worker(
     "generationQueue",
     async (job) => {
@@ -11,7 +17,7 @@ export function startGenerationWorker() {
       return { assignmentId };
     },
     {
-      connection: getRedisConnection() as never,
+      connection: connection as never,
       concurrency: 2
     }
   );

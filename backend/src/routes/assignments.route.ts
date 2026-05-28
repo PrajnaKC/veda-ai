@@ -1,10 +1,10 @@
 import { Router } from "express";
 import multer from "multer";
-import { connectToDatabase } from "../../../src/lib/mongodb";
-import { deleteCache, getCache, setCache } from "../../../src/lib/redis";
-import { assignmentCreateSchema } from "../../../src/lib/validators";
-import { AssignmentModel } from "../models/Assignment";
-import { extractUploadedFile } from "../utils/upload";
+import { connectToDatabase } from "../../../src/lib/mongodb.ts";
+import { deleteCache, getCache, setCache } from "../../../src/lib/redis.ts";
+import { assignmentCreateSchema } from "../../../src/lib/validators.ts";
+import { AssignmentModel } from "../models/Assignment.ts";
+import { extractUploadedFile } from "../utils/upload.ts";
 
 const upload = multer({ storage: multer.memoryStorage() });
 

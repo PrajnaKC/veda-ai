@@ -1,6 +1,8 @@
 import { Queue } from "bullmq";
-import { getRedisConnection } from "../config/redis";
+import { getRedisConnection } from "../config/redis.ts";
 
-export const generationQueue = new Queue("generationQueue", {
-  connection: getRedisConnection() as never
-});
+const connection = getRedisConnection();
+
+export const generationQueue = connection
+  ? new Queue("generationQueue", { connection: connection as never })
+  : null;

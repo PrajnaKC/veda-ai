@@ -1,5 +1,5 @@
 import PusherServer from "pusher";
-import type { GenerationEventName, GenerationEventPayload } from "@/types/socket";
+import type { GenerationEventName, GenerationEventPayload } from "../types/socket.ts";
 
 let pusherServer: PusherServer | null = null;
 

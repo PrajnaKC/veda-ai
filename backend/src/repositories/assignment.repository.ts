@@ -1,4 +1,4 @@
-import { AssignmentModel } from "../models/Assignment";
+import { AssignmentModel } from "../models/Assignment.ts";
 
 export async function listAssignments() {
   return AssignmentModel.find().sort({ createdAt: -1 }).lean();

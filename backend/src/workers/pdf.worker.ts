@@ -1,10 +1,16 @@
 import { Worker } from "bullmq";
-import { getRedisConnection } from "../config/redis";
-import { connectToDatabase } from "../../../src/lib/mongodb";
-import { createAssignmentPdf } from "../../../src/services/pdfService";
-import { AssignmentModel } from "../../../src/models/Assignment";
+import { getRedisConnection } from "../config/redis.ts";
+import { connectToDatabase } from "../../../src/lib/mongodb.ts";
+import { createAssignmentPdf } from "../../../src/services/pdfService.ts";
+import { AssignmentModel } from "../../../src/models/Assignment.ts";
 
 export function startPdfWorker() {
+  const connection = getRedisConnection();
+  if (!connection) {
+    console.warn("PDF worker disabled: REDIS_URL is not configured");
+    return null;
+  }
+
   const worker = new Worker(
     "pdfQueue",
     async (job) => {
@@ -20,7 +26,7 @@ export function startPdfWorker() {
       return { assignmentId, pdfSize: pdf.length };
     },
     {
-      connection: getRedisConnection() as never,
+      connection: connection as never,
       concurrency: 1
     }
   );

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { OutputPaper } from "@/components/output/OutputPaper";
+import { getBackendBaseUrl } from "@/lib/backendProxy";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ type PageProps = {
 
 export default async function AssignmentOutputPage({ params }: PageProps) {
   const { id } = await params;
-  const response = await fetch(`/api/output/${id}`, {
+  const response = await fetch(new URL(`/api/output/${id}`, getBackendBaseUrl()), {
     cache: "no-store"
   });
 

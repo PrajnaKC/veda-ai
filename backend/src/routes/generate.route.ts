@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { queueGeneration } from "../../../src/services/generationService";
-import { generationQueue } from "../queues/generation.queue";
+import { queueGeneration, runGenerationJob } from "../../../src/services/generationService.ts";
+import { generationQueue } from "../queues/generation.queue.ts";
 
 export const generateRouter = Router();
 
@@ -8,13 +8,17 @@ generateRouter.post("/:assignmentId", async (req, res) => {
   try {
     const { assignmentId } = req.params;
     const queued = await queueGeneration(assignmentId);
-    const job = await generationQueue.add("generation", { assignmentId });
+    const job = generationQueue ? await generationQueue.add("generation", { assignmentId }) : null;
+
+    if (!generationQueue) {
+      await runGenerationJob(assignmentId);
+    }
 
     return res.json({
       data: {
         assignmentId,
-        jobId: job.id,
-        status: queued.assignment.status
+        jobId: job?.id ?? null,
+        status: generationQueue ? queued.assignment.status : "completed"
       }
     });
   } catch (error) {
@@ -30,8 +34,13 @@ generateRouter.post("/", async (req, res) => {
 
   try {
     const queued = await queueGeneration(assignmentId);
-    const job = await generationQueue.add("generation", { assignmentId });
-    return res.json({ data: { assignmentId, jobId: job.id, status: queued.assignment.status } });
+    const job = generationQueue ? await generationQueue.add("generation", { assignmentId }) : null;
+
+    if (!generationQueue) {
+      await runGenerationJob(assignmentId);
+    }
+
+    return res.json({ data: { assignmentId, jobId: job?.id ?? null, status: generationQueue ? queued.assignment.status : "completed" } });
   } catch (error) {
     return res.status(500).json({ error: error instanceof Error ? error.message : "Failed to queue generation" });
   }
@@ -41,8 +50,13 @@ generateRouter.post("/regenerate/:assignmentId", async (req, res) => {
   try {
     const { assignmentId } = req.params;
     const queued = await queueGeneration(assignmentId);
-    const job = await generationQueue.add("generation", { assignmentId });
-    return res.json({ data: { assignmentId, jobId: job.id, status: queued.assignment.status } });
+    const job = generationQueue ? await generationQueue.add("generation", { assignmentId }) : null;
+
+    if (!generationQueue) {
+      await runGenerationJob(assignmentId);
+    }
+
+    return res.json({ data: { assignmentId, jobId: job?.id ?? null, status: generationQueue ? queued.assignment.status : "completed" } });
   } catch (error) {
     return res.status(500).json({ error: error instanceof Error ? error.message : "Failed to regenerate assignment" });
   }
