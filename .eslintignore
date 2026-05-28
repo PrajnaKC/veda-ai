@@ -1,0 +1,11 @@
+# Ignore built/generated JS files that use CommonJS requires
+# These are server/backend files (not part of the client bundle)
+backend/dist/
+src/lib/*.js
+src/services/*.js
+src/models/*.js
+src/types/*.js
+src/*.js
+
+# Optional: ignore any other generated JS artifacts
+.next/
