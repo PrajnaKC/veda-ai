@@ -13,19 +13,14 @@ type VedaLogoProps = {
   variant?: "mark" | "full";
 };
 
-function VedaLogoMark({
-  className,
-  size = 40,
-  bgGradientId,
-  markGradientId,
-  filterId,
-}: {
+function VedaLogoMark(props: {
   className?: string;
   size: number;
   bgGradientId: string;
   markGradientId: string;
   filterId: string;
 }) {
+  const { className, size = 40 } = props;
   return <VedaAILogo className={className} size={size} title="VedaAI logo" />;
 }
 

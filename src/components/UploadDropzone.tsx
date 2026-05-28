@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, X } from 'lucide-react';
 import { useAssignmentStore } from '../store/useAssignmentStore';
-import { motion } from 'framer-motion';
+// `motion` removed - not used here
 
 const ACCEPTED_FORMATS = {
   'image/jpeg': ['.jpeg', '.jpg'],

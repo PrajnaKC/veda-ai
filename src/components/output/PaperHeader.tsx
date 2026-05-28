@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 type PaperHeaderProps = {
   schoolName: string;
   schoolLogo?: string;
@@ -18,18 +20,19 @@ export function PaperHeader({
   return (
     <header className="flex flex-col items-center text-center gap-2 border-b-2 border-neutral-800 pb-4 mb-4">
       {schoolLogo && (
-        <div className="flex justify-center mb-3">
-          <img
-            src={schoolLogo}
-            alt={`${schoolName} logo`}
-            className="h-16 w-16 object-contain"
-            onError={(e) => {
-              // Hide image if failed to load
-              e.currentTarget.style.display = "none";
-            }}
-          />
-        </div>
-      )}
+            <div className="flex justify-center mb-3">
+              {/* Use next/image for optimized images; unoptimized to avoid loader config for external URLs */}
+              <Image
+                src={schoolLogo}
+                alt={`${schoolName} logo`}
+                width={64}
+                height={64}
+                className="h-16 w-16 object-contain"
+                onError={() => {}}
+                unoptimized
+              />
+            </div>
+          )}
       <h1 className="text-[28px] sm:text-[32px] font-bold text-neutral-900 uppercase tracking-tight leading-none">
         {schoolName}
       </h1>

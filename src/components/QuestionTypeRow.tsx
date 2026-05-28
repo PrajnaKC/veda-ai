@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ChevronDown, Trash2 } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import CounterInput from './CounterInput';
 import { useAssignmentStore, QuestionTypeOption } from '../store/useAssignmentStore';
 import { motion } from 'framer-motion';
