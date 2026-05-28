@@ -6,7 +6,7 @@ import { Button } from "@/components/common/Button";
 import { useSocketStore } from "@/store/socketStore";
 import { QuestionPaper } from "./QuestionPaper";
 import { ResponseBanner } from "@/components/ResponseBanner";
-import type { QuestionPaperData } from "@/data/questionPaper";
+import type { QuestionPaperData, QuestionDifficulty } from "@/data/questionPaper";
 
 type BackendGeneratedPaperQuestion = {
   questionNumber?: number;
@@ -19,17 +19,17 @@ type BackendGeneratedPaperQuestion = {
 type PaperQuestion = BackendGeneratedPaperQuestion & {
   type?: "mcq" | "oneword" | "short" | "long" | "numerical" | "diagram" | "case";
   options?: string[];
-  answer?: string;
+  answer: string;
   meta?: Record<string, unknown>;
   prompt?: string;
 };
 
 type ResolvedQuestion = {
-  id: number | string;
-  difficulty: string;
+  id: number;
+  difficulty: QuestionDifficulty;
   text: string;
   marks: number;
-  answer?: string;
+  answer: string;
   type?: string;
   options?: string[];
   meta?: Record<string, unknown>;
@@ -80,8 +80,10 @@ function resolvePaperSections(paper?: Assignment["generatedPaper"] | BackendGene
       (sec.questions || []).forEach((q) => {
         const qq = q as PaperQuestion;
         const qType = qq.type as string | undefined;
-        const base = {
-          id: qq.questionNumber || out.length + 1,
+        const parsedQNum = typeof qq.questionNumber === "number" ? qq.questionNumber : (qq.questionNumber ? Number(qq.questionNumber) : NaN);
+        const baseId = Number.isFinite(parsedQNum) ? (parsedQNum as number) : out.length + 1;
+        const base: ResolvedQuestion = {
+          id: baseId,
           difficulty: normalizeDifficulty(qq.difficulty),
           text: qq.text || qq.question || "",
           marks: qq.marks || 0,
@@ -100,8 +102,10 @@ function resolvePaperSections(paper?: Assignment["generatedPaper"] | BackendGene
 
             // then push each sub-question as individual numbered questions
             caseMeta.subQuestions.forEach((sub) => {
+              const subQNum = typeof sub.questionNumber === "number" ? sub.questionNumber : (sub.questionNumber ? Number(sub.questionNumber) : NaN);
+              const subId = Number.isFinite(subQNum) ? subQNum : out.length + 1;
               out.push({
-                id: sub.questionNumber || out.length + 1,
+                id: subId,
                 difficulty: normalizeDifficulty(sub.difficulty || qq.difficulty),
                 text: sub.text || sub.question || sub.prompt || "",
                 marks: sub.marks || 0,
